@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PushSubscription {
+  id               String              @id @default(cuid())
+  deviceId         String              @unique
+  endpoint         String              @unique
+  p256dh           String
+  auth             String
+  subscriptionJson Json
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  reminderPreference ReminderPreference?
+}
+
+model ReminderPreference {
+  id                String           @id @default(cuid())
+  deviceId          String           @unique
+  wirdTime          String           @default("08:00")
+  morningAthkarTime String           @default("06:30")
+  eveningAthkarTime String           @default("18:00")
+  prePrayerMinutes  Int              @default(15)
+  enabledChannels   String[]         @default(["in-app"])
+  timezone          String           @default("Asia/Riyadh")
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  subscription      PushSubscription @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+}
